@@ -13,6 +13,8 @@ import kotlinx.serialization.Serializable
 object Home
 @Serializable
 data class Detail(val noteID: Int)
+@Serializable
+object AddNote
 
 @Composable
 fun BundleNavGraph(){
@@ -25,12 +27,26 @@ fun BundleNavGraph(){
             HomeScreen(
                 onItemClick = { noteID ->
                     navController.navigate(route = Detail(noteID = noteID))
+                },
+                onAddNoteClick = {
+                    navController.navigate(route = AddNote)
                 }
             )
         }
         composable<Detail>{
             val detail = it.toRoute<Detail>()
-            DetailScreen(noteID = detail.noteID)
+            DetailScreen(
+                noteID = detail.noteID,
+                navigateBack = {navController.popBackStack()}
+            )
+        }
+
+        composable<AddNote>{
+            AddNoteScreen(
+                navigateBack = {
+                    navController.popBackStack()
+                }
+            )
         }
     }
 }

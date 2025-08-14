@@ -1,6 +1,11 @@
 package com.example.bundle.presentation
 
+import android.graphics.drawable.Icon
+import android.os.Bundle
+import android.provider.CalendarContract
 import android.util.Log
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -9,17 +14,28 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Add
+import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.KeyboardArrowRight
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
+import androidx.compose.material3.SwipeToDismissBox
+import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -29,34 +45,108 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.bundle.model.Note
 
-val notes = listOf(
-    Note(title = "Grind", description = "This is the description"),
-    Note(title = "Workout", description = "This is the description"),)
+val notes =   mutableListOf(
+        Note(title = "Grind", description = "This is the description"),
+        Note(title = "Workout", description = "This is the description"),)
 
 
 @Composable
-fun HomeScreen( onItemClick: (Int)-> Unit){
+@OptIn(ExperimentalMaterial3Api::class)
+fun HomeScreen( onItemClick: (Int)-> Unit, onAddNoteClick: () -> Unit){
 
-    Scaffold {
+    var _notes = remember {
+        notes.toMutableStateList()
+    }
+
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = {Text(text = "Bundle")},
+            )
+        },
+        floatingActionButton = {
+            FloatingActionButton(
+                onClick = onAddNoteClick,
+                containerColor = MaterialTheme.colorScheme.primaryContainer
+            ) {
+                Icon(
+                    imageVector = Icons.Outlined.Add,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onPrimaryContainer
+                )
+            }
+        }
+    ) {
         LazyColumn(
             modifier = Modifier.padding(it)
         ){
-            items(items = notes) {
-                ItemCard(
-                    modifier = Modifier.height(100.dp),
-                    onItemClick = onItemClick,
-                    note = it,
-                    id = notes.indexOf(it)
-                )
+            items(
+                items = _notes,
+                key = {
+                    it.hashCode()
+                }
+            ) {
+               SwipeToDismissItem(
+                   modifier = Modifier.height(100.dp).padding(bottom = 5.dp, start = 5.dp, end = 5.dp).animateItem(),
+                   note = it,
+                   id = _notes.indexOf(it),
+                   onItemClick = onItemClick,
+                   onSwipeDeleteItem = {
+                       _notes.remove(it)
+                       notes.remove(it)
+                   }
+               )
             }
         }
     }
 }
 
 @Composable
-fun ItemCard(modifier: Modifier = Modifier, onItemClick: (Int) -> Unit, note: Note, id: Int){
+fun SwipeToDismissItem(modifier: Modifier, note: Note, id: Int, onItemClick: (Int) -> Unit, onSwipeDeleteItem: ()-> Unit){
+
+    var swipeToDismissBoxState = rememberSwipeToDismissBoxState (
+        confirmValueChange = {
+            if (it == SwipeToDismissBoxValue.EndToStart){
+                onSwipeDeleteItem()
+            }
+            it == SwipeToDismissBoxValue.EndToStart
+        }
+    )
+
+    SwipeToDismissBox(
+        modifier = modifier,
+        state = swipeToDismissBoxState,
+        backgroundContent = {
+            when (swipeToDismissBoxState.dismissDirection){
+                SwipeToDismissBoxValue.StartToEnd -> {}
+                SwipeToDismissBoxValue.EndToStart -> {
+                    Icon(
+                        Icons.Outlined.Delete,
+                        contentDescription = null,
+                        modifier = modifier
+                            .fillMaxSize()
+                            .background(color = Color.Red)
+                            .wrapContentSize(Alignment.CenterEnd)
+                            .padding(end = 10.dp),
+                        tint = Color.White
+                    )
+                }
+                SwipeToDismissBoxValue.Settled -> {}
+            }
+
+        }
+
+    ) {
+        ItemCard(modifier = modifier, onItemClick = onItemClick, note = note, id = id)
+    }
+}
+
+@Composable
+fun ItemCard(modifier: Modifier, onItemClick: (Int) -> Unit, note: Note, id: Int){
     Surface(
-        modifier = modifier.padding(10.dp).fillMaxSize()
+        modifier = modifier
+            .height(100.dp)
+            .fillMaxSize()
             .clickable(
                 enabled = true,
                 onClick = {
@@ -67,7 +157,9 @@ fun ItemCard(modifier: Modifier = Modifier, onItemClick: (Int) -> Unit, note: No
         color = MaterialTheme.colorScheme.surfaceContainer
     ) {
         Row(
-            modifier = Modifier.padding(8.dp).fillMaxHeight(),
+            modifier = Modifier
+                .padding(8.dp)
+                .fillMaxHeight(),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ){
