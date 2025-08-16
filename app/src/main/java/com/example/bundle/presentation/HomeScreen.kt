@@ -1,11 +1,7 @@
 package com.example.bundle.presentation
 
-import android.graphics.drawable.Icon
-import android.os.Bundle
-import android.provider.CalendarContract
-import android.util.Log
+
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -43,20 +39,20 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.bundle.model.Note
-
-val notes =   mutableListOf(
-        Note(title = "Grind", description = "This is the description"),
-        Note(title = "Workout", description = "This is the description"),)
+import com.example.bundle.presentation.viewmodel.NoteViewModel
 
 
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
-fun HomeScreen( onItemClick: (Int)-> Unit, onAddNoteClick: () -> Unit){
+fun HomeScreen(
+    onItemClick: (Int)-> Unit,
+    onAddNoteClick: () -> Unit,
+    viewModel: NoteViewModel
+){
 
-    var _notes = remember {
-        notes.toMutableStateList()
-    }
+    val _notes = viewModel.getAllNotes()
 
     Scaffold(
         topBar = {
@@ -92,8 +88,7 @@ fun HomeScreen( onItemClick: (Int)-> Unit, onAddNoteClick: () -> Unit){
                    id = _notes.indexOf(it),
                    onItemClick = onItemClick,
                    onSwipeDeleteItem = {
-                       _notes.remove(it)
-                       notes.remove(it)
+                       viewModel.removeNote(it)
                    }
                )
             }

@@ -2,11 +2,12 @@ package com.example.bundle.presentation
 
 import android.util.Log
 import androidx.compose.runtime.Composable
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
-import com.example.bundle.model.Note
+import com.example.bundle.presentation.viewmodel.NoteViewModel
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -18,6 +19,7 @@ object AddNote
 
 @Composable
 fun BundleNavGraph(){
+    val viewModel: NoteViewModel = viewModel()
     val navController = rememberNavController()
     NavHost(
         navController = navController,
@@ -30,14 +32,16 @@ fun BundleNavGraph(){
                 },
                 onAddNoteClick = {
                     navController.navigate(route = AddNote)
-                }
+                },
+                viewModel = viewModel
             )
         }
         composable<Detail>{
             val detail = it.toRoute<Detail>()
             DetailScreen(
                 noteID = detail.noteID,
-                navigateBack = {navController.popBackStack()}
+                navigateBack = {navController.popBackStack()},
+                viewModel = viewModel
             )
         }
 
@@ -45,7 +49,8 @@ fun BundleNavGraph(){
             AddNoteScreen(
                 navigateBack = {
                     navController.popBackStack()
-                }
+                },
+                viewModel = viewModel
             )
         }
     }

@@ -26,10 +26,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.bundle.model.Note
+import com.example.bundle.presentation.viewmodel.NoteViewModel
 
 @Composable
 fun AddNoteScreen(
-    navigateBack: () -> Unit
+    navigateBack: () -> Unit,
+    viewModel: NoteViewModel
 ){
 
     var title by remember{
@@ -78,7 +80,7 @@ fun AddNoteScreen(
             )
             ElevatedButton(
                 onClick = {
-                    notes.add(
+                    viewModel.addNote(
                         Note(title = title, description = description)
                     )
                     navigateBack()

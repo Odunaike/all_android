@@ -59,6 +59,6 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
     implementation(libs.androidx.navigation.compose) //for navhost
-
-    implementation ("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.3") //JSON serializable
+    implementation(libs.androidx.lifecycle.viewmodel.compose) //for viewModel()
+   // implementation ("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.3") //JSON serializable
 }
