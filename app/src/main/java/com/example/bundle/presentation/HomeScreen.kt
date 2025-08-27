@@ -1,6 +1,7 @@
 package com.example.bundle.presentation
 
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -30,6 +31,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Alignment
@@ -40,6 +42,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.bundle.data.NoteEntity
 import com.example.bundle.model.Note
 import com.example.bundle.presentation.viewmodel.NoteViewModel
 
@@ -52,7 +55,8 @@ fun HomeScreen(
     viewModel: NoteViewModel
 ){
 
-    val _notes = viewModel.getAllNotes()
+    val _notes = viewModel.notes.collectAsState(initial = emptyList()).value
+    Log.d("HomeScreen", "Notes: $_notes")
 
     Scaffold(
         topBar = {
@@ -79,13 +83,13 @@ fun HomeScreen(
             items(
                 items = _notes,
                 key = {
-                    it.hashCode()
+                    it.id
                 }
             ) {
                SwipeToDismissItem(
                    modifier = Modifier.height(100.dp).padding(bottom = 5.dp, start = 5.dp, end = 5.dp).animateItem(),
                    note = it,
-                   id = _notes.indexOf(it),
+                   id = it.id,
                    onItemClick = onItemClick,
                    onSwipeDeleteItem = {
                        viewModel.removeNote(it)
@@ -97,7 +101,7 @@ fun HomeScreen(
 }
 
 @Composable
-fun SwipeToDismissItem(modifier: Modifier, note: Note, id: Int, onItemClick: (Int) -> Unit, onSwipeDeleteItem: ()-> Unit){
+fun SwipeToDismissItem(modifier: Modifier, note: NoteEntity, id: Int, onItemClick: (Int) -> Unit, onSwipeDeleteItem: ()-> Unit){
 
     var swipeToDismissBoxState = rememberSwipeToDismissBoxState (
         confirmValueChange = {
@@ -137,7 +141,7 @@ fun SwipeToDismissItem(modifier: Modifier, note: Note, id: Int, onItemClick: (In
 }
 
 @Composable
-fun ItemCard(modifier: Modifier, onItemClick: (Int) -> Unit, note: Note, id: Int){
+fun ItemCard(modifier: Modifier, onItemClick: (Int) -> Unit, note: NoteEntity, id: Int){
     Surface(
         modifier = modifier
             .height(100.dp)
@@ -145,6 +149,7 @@ fun ItemCard(modifier: Modifier, onItemClick: (Int) -> Unit, note: Note, id: Int
             .clickable(
                 enabled = true,
                 onClick = {
+                    Log.d("heyyyyy", id.toString())
                     onItemClick(id)
                 }
             ),

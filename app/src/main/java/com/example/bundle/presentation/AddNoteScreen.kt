@@ -25,6 +25,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.bundle.data.NoteEntity
 import com.example.bundle.model.Note
 import com.example.bundle.presentation.viewmodel.NoteViewModel
 
@@ -81,7 +82,7 @@ fun AddNoteScreen(
             ElevatedButton(
                 onClick = {
                     viewModel.addNote(
-                        Note(title = title, description = description)
+                        NoteEntity(title = title, description = description)
                     )
                     navigateBack()
                 },

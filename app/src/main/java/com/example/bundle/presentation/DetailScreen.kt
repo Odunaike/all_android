@@ -1,6 +1,7 @@
 package com.example.bundle.presentation
 
 import android.opengl.Visibility
+import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -24,6 +25,8 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -35,6 +38,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.bundle.data.NoteEntity
 import com.example.bundle.model.Note
 import com.example.bundle.presentation.viewmodel.NoteViewModel
 
@@ -45,14 +49,20 @@ fun DetailScreen(
     navigateBack: () -> Unit,
     viewModel: NoteViewModel
 ){
-    val note  = viewModel.getNote(noteID)
+    val note  = viewModel.getNote(noteID).collectAsState(initial = NoteEntity(title = "", description = "")).value
 
     var title by remember{
-        mutableStateOf(note.title)
+        mutableStateOf("")
     }
     var description by remember {
-        mutableStateOf(note.description)
+        mutableStateOf("")
     }
+
+    LaunchedEffect(note) {
+       title = note.title
+       description = note.description
+    }
+
     var isEditable by remember {
         mutableStateOf(false)
     }
@@ -120,8 +130,7 @@ fun DetailScreen(
                 ElevatedButton(
                     onClick = {
                         viewModel.updateNote(
-                            id = noteID,
-                            note = Note(title = title, description = description )
+                            note = NoteEntity(title = title, description = description, id = noteID)
                         )
                     },
                     modifier = Modifier.fillMaxWidth(),

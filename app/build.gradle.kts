@@ -4,6 +4,7 @@ plugins {
     alias(libs.plugins.kotlin.compose)
     // Kotlin serialization plugin for type safe routes and navigation arguments
     alias{ libs.plugins.kotlin.serialization}
+    id("com.google.devtools.ksp") //the ksp thingy to make the 'ksp' variable available in dependencies
 }
 
 android {
@@ -60,5 +61,8 @@ dependencies {
     debugImplementation(libs.androidx.ui.test.manifest)
     implementation(libs.androidx.navigation.compose) //for navhost
     implementation(libs.androidx.lifecycle.viewmodel.compose) //for viewModel()
-   // implementation ("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.3") //JSON serializable
+    implementation(libs.androidx.room) //for room db
+    ksp("androidx.room:room-compiler:2.7.2")
+
+    // implementation ("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.3") //JSON serializable
 }

@@ -19,7 +19,8 @@ object AddNote
 
 @Composable
 fun BundleNavGraph(){
-    val viewModel: NoteViewModel = viewModel()
+
+    val viewModel: NoteViewModel = viewModel(factory = NoteViewModel.factory)
     val navController = rememberNavController()
     NavHost(
         navController = navController,
